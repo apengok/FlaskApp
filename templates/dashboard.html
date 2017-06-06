@@ -1,0 +1,127 @@
+{% extends "header.html" %}
+{%  block body %}
+
+<div class="container">
+    <body class="body">
+        <div role="tabpanel">
+            <!-- Dashboard Navigation Tabs tabs -->
+              <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#basics" aria-controls="basics" role="tab" data-toggle="tab">Basics</a></li>
+                <!--<li role="presentation"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Overview</a></li>-->
+                <li role="presentation"><a href="#games" aria-controls="games" role="tab" data-toggle="tab">Game Dev</a></li>
+                <li role="presentation"><a href="#webdev" aria-controls="webdev" role="tab" data-toggle="tab">Web Dev</a></li>
+                <li role="presentation"><a href="#dataanalysis" aria-controls="dataanalysis" role="tab" data-toggle="tab">Data Analysis</a></li>
+                <li role="presentation"><a href="#finance" aria-controls="finance" role="tab" data-toggle="tab">Finance</a></li>
+                <li role="presentation"><a href="#hardware" aria-controls="hardware" role="tab" data-toggle="tab">Robotics</a></li>
+                <li role="presentation"><a href="#guis" aria-controls="guis" role="tab" data-toggle="tab">GUIs</a></li>
+
+              </ul>
+              
+              <!-- Begin Tab panes -->
+  <div class="tab-content">
+        
+            <!-- BEGIN OVERVIEW TAB -->
+    <div role="tabpanel" class="tab-pane fade" id="home">
+		<br>
+		<p>Welcome to your dashboard. Here, you can track your progress, set goals, and figure out where to go next.</p>
+		<br>
+		<div class="panel panel-default">
+		  <div class="panel-body">
+		  <p>Recent progress: <strong>Basics</strong></p>
+			
+		  </div>
+		  <div class="panel-footer">
+		  
+		  Going through all of the basics well best equip you to handle the largest array of problems that you may face, as well as helping you to pick up new topics along the way.</div>
+		</div>
+		
+		
+		<div class="panel panel-default">
+		  <div class="panel-body">
+		  <p>Content Suggestions:</p>
+		  </div>
+		  <div class="panel-footer">
+		   		<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">
+				  Robotics
+					</button>
+
+					<!-- Modal -->
+					<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					  <div class="modal-dialog">
+						<div class="modal-content">
+						  <div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title" id="myModalLabel">Robotics</h4>
+						  </div>
+						  <div class="modal-body">
+							Learn how to take your knowledge of controlling the digital world and apply it to controlling the physical world!
+						  </div>
+						  <div class="modal-footer">
+						  
+							
+							<button type="button" class="btn btn-primary">Start on this topic!</button>
+							<button type="button" class="btn btn-default" data-dismiss="modal">Maybe Later.</button>
+							<button type="button" class="btn btn-danger" data-dismiss="modal">Not interested in this topic.</button>
+							
+						  </div>
+						</div>
+					  </div>
+					</div>
+		  </div>
+		</div>
+
+		
+	</div>
+<!-- END OVERVIEW TAB -->
+
+<!-- BEGIN BASICS TAB -->    
+        <div role="tabpanel"class="tab-pane fade in active" id="basics">
+            </br>
+            <h4>Basics</h4>
+            <p>Going through all of the basics well best equip you to handle the largest array of problems that you may face, as well as helping you to pick up new topics along the way.</p>
+            
+            <div class="list-group">
+            {% for infos in topics["Basics"] %}
+                <a href="{{ infos[1] }}" class="list-group-item list-group-item-info"><span class="glyphicon glyphicon-ok"></span>{{ infos[0] }}</a>
+            {% endfor %}
+            </div>
+        </div>
+    <!-- END BASICS TAB -->
+    
+    <!-- BEGIN WEB TAB -->    
+        <div role="tabpanel"class="tab-pane fade in active" id="webdev">
+            </br>
+            <p><strong><a href="https://www.djangoproject.com/" target="blank">Django</a></strong> and <strong><a href="http://flask.pocoo.org/" target="blank">Flask</a></strong> are both very popular Web Frameworks for the Python Programming language. </p>
+		<br>
+
+		<button class="btn btn-primary" data-toggle="collapse" href="#djangovsflask" aria-expanded="false" aria-controls="djangovsflask">
+		  Flask vs Django? Which should you choose?
+		</button>
+            <p>Flask and Django solve the same problems. Flask is a bit looser and more open-ended. It allows for you to both do things simply, and also do things incorrectly.</p>
+			<p>Django is more "higher level" than Flask, meaning some things are simply not as easily customized. Django can be slightly more complex, as you're forced to understand Django in basically one way, yet you're more likely to do things the right way.</p>
+			<p>The best choice is to make an attempt at both, and see which suits you best.</p>
+            
+            <br><br>
+				<div class="row">
+					<div class="col-md-5"><div class="list-group">
+						{%for infos in topics['Practical Flask Creating PythonProgrammingnet']%}
+							{% if infos[1] in tracking %}
+								<a href="{{infos[1]}}" class="list-group-item list-group-item-info"><span class="glyphicon glyphicon-ok"></span> {{infos[0]}}</a>
+							{% else %}
+								<a href="{{infos[1]}}" class="list-group-item list-group-item-warning">{{infos[0]}}</a>
+							{% endif %}
+						{%endfor%}
+
+
+						
+				</div></div>
+				</div>
+        </div>
+    <!-- END WEB TAB -->
+    
+    
+            </div>
+        </div>
+    </body>
+</div>
+{% endblock %}
