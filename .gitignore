@@ -2,3 +2,5 @@
 *.pyc
 
 venv
+templates/tutorials/
+!templates/tutorials/*.py

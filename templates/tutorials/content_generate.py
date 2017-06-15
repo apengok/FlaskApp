@@ -11,24 +11,23 @@ HTML_TEMPLATE = '''
 
     <div class="container" align="left" style="max-width:800px">
         <div class="progress">
-            <div class="progress-bar" role="progressbar" aria-valuen %s Progress: {{ completed_percentages['%s']}}%
+            <div class="progress-bar" role="progressbar" >Basic Progress: %s Progress: {{ completed_percentages['%s']}}%
             </div>
         </div>
-    <h2{{ curTitle }}</h2>
+    <h2>{{ curTitle }}</h2>
     <br>
     
-    <div class="embed-responsive embed-responsive-16by9"></div>
     <p></p>
     <p></p>
     <p></p>
     <p></p>
     
-    <kbd data-toggle="collapse" data-target="#consoleinfo" aria-expanded="false" aria-controls="consoleinfo">console</kbd>.</p>
+    <div class="col l6"><p>"print()" is a built-in Python function that will output some text to the <kbd data-toggle="collapse" data-target="#consoleinfo" aria-expanded="false" aria-controls="consoleinfo">console</kbd>.</p>
 		<div class="collapse" id="consoleinfo">
 		  <div class="well">
 			<p>When someone says to "print to the console," they are referring to where information from your program is ouput. This might be a command prompt (CMD.exe), the terminal for Mac/Linux users, or the interactive prompt in IDLE. You will see an example of "output to console" below.</p>
-            </div>
-        </div>
+		  </div>
+		</div></div></div>
         
         <div class="row">
         <div class="col-md-6">
@@ -46,6 +45,7 @@ CODE HERE
 
 for each_topic in TOPIC_DICT:
     print(each_topic)
+    each_topic = each_topic
     os.makedirs(each_topic)
     
     for eachele in TOPIC_DICT[each_topic]:

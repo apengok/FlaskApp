@@ -1,4 +1,4 @@
-from flask import Flask,render_template,flash,request,url_for,redirect,session,g
+from flask import Flask,render_template,flash,request,url_for,redirect,session,g,make_response,send_file,send_from_directory,jsonify
 from content_management import Content
 from functools import wraps
 from connector import connection
@@ -7,12 +7,26 @@ from wtforms import Form, BooleanField, TextField, PasswordField, validators
 
 from passlib.hash import sha256_crypt
 #from sqlite3 import escape_string as thwart
+import smtplib
+from flask_mail import Mail,Message
+import pygal
 
-TOPIC_DICT = Content()
+app = Flask(__name__,instance_path='/var/www/FlaskApp/FlaskApp/protected')
 
-app = Flask(__name__)
 
 app.config['SECRET_KEY'] = "it'ssecret"
+app.config.update(
+        DEBUG=True,
+        #Email Setting
+        MAIL_SERVER='smtp.gmail.com',
+        MAIL_PORT=465,
+        MAIL_USE_SSL=True,
+        MAIL_USERNAME = 'peng.weilin929@gmail.com',
+        MAIL_PASSWORD = '57266713sweet'
+    )
+mail = Mail(app)
+
+TOPIC_DICT = Content()
 
 class RegistrationForm(Form):
     username = TextField("Username",[validators.Length(min=4,max=20)])
@@ -25,11 +39,97 @@ class RegistrationForm(Form):
 def homepage():
     return render_template("main.html")
 
+def special_requirement(f):
+    @wraps(f)
+    def wrap(*args,**kwargs):
+        try:
+            if 'peng' == session['username']:
+                return f(*args,**kwargs)
+            else:
+                return redirect(url_for('dashboard'))
+        except :
+            return redirect(url_for('dashboard'))
+    return wrap
+
+@app.route('/protected/<path:filename>/')
+@special_requirement
+def protected(filename):
+    try:
+        return send_from_directory(os.path.join(app.instance_path,''),filename)
+    except Exception,e:
+        return redirect(url_for('dashboard'))
+    
+@app.route('/return-file/')
+def return_file():
+    return send_file("/var/www/FlaskApp/FlaskApp/static/favicon.ico",attachment_filename='favicon.ico')
+
+    
+@app.route('/file-download/')
+def file_downloads():
+    return render_template("downloads.html")
+
+
+@app.route('/pygalexample/')
+def pygalexample():
+    try:
+        graph = pygal.Line()
+        graph.title = "% Change Coolness of programming languages over time."
+        graph.x_labels = ['2011','2012','2013','2014','2015','2016']
+        graph.add('Python',[15,31,89,200,356,900])
+        graph.add('Java',[15,45,76,80,91,95])
+        graph.add('C++',[5,51,54,102,150,201])
+        graph.add('All other combined',[5,15,21,55,92,105])
+        graph_data = graph.render_data_uri()
+        return render_template("graphing.html",graph_data=graph_data)
+    except Exception,e:
+        return str(e)
+        
+@app.route('/send-mail/')
+def send_mail():
+    try:
+        msg = Message("Send Mail Tutorial!",
+            sender="peng.weilin929@gmail.com",
+            recipients=["peng.weilin@yahoo.com"])
+        msg.body=  "Yo!\n Have you heard the good words of flask???"
+        mail.send(msg)
+        return "Mail sent"
+    except Exception,e:
+        return str(e)
+
+@app.route('/background_process/')
+def background_process():
+    try:
+        
+        lang = request.args.get('proglang')
+        if str(lang).lower() == 'python':
+            return jsonify(result='You are wise!')
+        else:
+            return jsonify(result='Try again!')
+    except Exception,e:
+        return str(e)
+        
+        
+@app.route('/interactive/')
+def interactive():
+    try:
+        
+        return render_template("interactive.html")
+    except Exception,e:
+        return str(e)
+        
 @app.route('/dashboard/', methods=['GET', 'POST'])
 def dashboard():
     
     return render_template("dashboard.html",topics=TOPIC_DICT)
 
+@app.route('/converters/')
+@app.route('/converters/<string:thread>/<int:page>/')
+def convertexample(thread,page=1):
+    try:
+        gc.collect()
+        return render_template("converterexample.html",thread=thread,page=page)
+    except Exception,e:
+        return(str(e))
     
 @app.errorhandler(404)
 def page_not_found(e):
@@ -120,9 +220,91 @@ def login_page():
         return render_template("login.html",error=error)
     
     except Exception as e:
-        flash(e)
+        flash(str(e))
         return render_template("login.html",error=error)
 
+def userinformation():
+    try:
+        client_name = session['username']
+        guest = False
+    except:
+        guest = True
+        client_name = "Guest"
+        
+    if not guest:
+        try:
+            c,conn = connection()
+            c.execute("SELECT * FROM users WHERE username = ?",(client_name,))
+            data = c.fetchone()
+            settings = data[4]
+            tracking = data[5]
+            rank = data[6]
+        except Exception , e:
+            pass
+    else:
+        settings = [0,0]
+        tracking = [0,0]
+        rank = [0,0]
+        
+    return client_name,settings,tracking,rank
+        
+def update_user_tracking():
+    try:
+        completed = str(request.args['completed'])
+        if completed in str(TOPIC_DICT.values()):
+            client_name,settings,tracking,rank = userinformations()
+            if tracking == None:
+                tracking = completed
+            else:
+                if completed not in tracking:
+                    tracking = tracking+","+completed
+            
+            c,conn = connection()
+            c.execute("UPDATE users SET tracking = ? WHERE username = ?",(tracking,client_name))
+            conn.commit()
+            c.close()
+            conn.close()
+            client_name,settings,tracking,rank = userinformation()
+        else:
+            pass
+    except Exception,e:
+        flash(str(e))
+
+
+def topic_completion_percent():
+    try:
+        client_name,settings,tracking,rank = userinformation()
+        
+        try:
+            tracking = tracking.split(",")
+        except:
+            pass
+        if tracking == None:
+            tracking = []
+        
+        completed_percentages = {}
+        
+        for each_topic in TOPIC_DICT:
+            total = 0
+            total_complete = 0
+            
+            for each in TOPIC_DICT[each_topic]:
+                total += 1
+                for done in tracking:
+                    if done == each[1]:
+                        total_complete += 1
+                        
+            percent_complete = int((total_complete*100)/total)
+            completed_percentages[each_topic] = percent_complete
+            
+        return completed_percentages
+    except:
+        for each_topic in TOPIC_DICT:
+            total = 0
+            total_complete = 0
+            completed_percentages[each_topic] = 0.0
+            
+        return completed_percentages
 
 @app.route(TOPIC_DICT["Clustering (unsupervised learning)"][0][1],methods=['GET','POST'])
 def Unsupervised_Machine_Learning_Flat_Clustering():
@@ -143,7 +325,7 @@ def Intro_and_environment_creation():
     return render_template("tutorials/Flask/flask-web-development-introduction.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Flask"][0][1],curTitle=TOPIC_DICT["Flask"][0][0],nextLink=TOPIC_DICT["Flask"][1][1],nextTitle=TOPIC_DICT["Flask"][1][0])
 
 @app.route(TOPIC_DICT["Flask"][1][1],methods=['GET','POST'])
-def Basics_init_py_and_your_first_Flask_App():
+def Basics_initpy_and_your_first_Flask_App():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Flask/creating-first-flask-web-app.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Flask"][1][1],curTitle=TOPIC_DICT["Flask"][1][0],nextLink=TOPIC_DICT["Flask"][2][1],nextTitle=TOPIC_DICT["Flask"][2][0])
@@ -185,7 +367,7 @@ def Intro_to_Machine_Learning_with_Scikit_Learn_and_Python():
     return render_template("tutorials/Support Vector Machines (SVM)/machine-learning-python-sklearn-intro.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Support Vector Machines (SVM)"][0][1],curTitle=TOPIC_DICT["Support Vector Machines (SVM)"][0][0],nextLink=TOPIC_DICT["Support Vector Machines (SVM)"][1][1],nextTitle=TOPIC_DICT["Support Vector Machines (SVM)"][1][0])
 
 @app.route(TOPIC_DICT["Support Vector Machines (SVM)"][1][1],methods=['GET','POST'])
-def Simple_Support_Vector_Machine_(SVM)_example_with_character_recognition():
+def Simple_Support_Vector_Machine_SVM_example_with_character_recognition():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Support Vector Machines (SVM)/support-vector-machine-svm-example-tutorial-scikit-learn-python.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Support Vector Machines (SVM)"][1][1],curTitle=TOPIC_DICT["Support Vector Machines (SVM)"][1][0],nextLink=TOPIC_DICT["Support Vector Machines (SVM)"][2][1],nextTitle=TOPIC_DICT["Support Vector Machines (SVM)"][2][0])
@@ -557,7 +739,7 @@ def Time_frame_and_sample_size_option():
     return render_template("tutorials/Tkinter/time-frame-sample-size-options.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Tkinter"][13][1],curTitle=TOPIC_DICT["Tkinter"][13][0],nextLink=TOPIC_DICT["Tkinter"][14][1],nextTitle=TOPIC_DICT["Tkinter"][14][0])
 
 @app.route(TOPIC_DICT["Tkinter"][14][1],methods=['GET','POST'])
-def Adding_indicator_Menus_(3_videos)():
+def Adding_indicator_Menus_3_videos():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Tkinter/adding-indicator-choice-menu.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Tkinter"][14][1],curTitle=TOPIC_DICT["Tkinter"][14][0],nextLink=TOPIC_DICT["Tkinter"][15][1],nextTitle=TOPIC_DICT["Tkinter"][15][0])
@@ -581,7 +763,7 @@ def Allowing_the_exchange_choice_option_to_affect_actual_shown_exchange():
     return render_template("tutorials/Tkinter/exchange-choice-handling.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Tkinter"][17][1],curTitle=TOPIC_DICT["Tkinter"][17][0],nextLink=TOPIC_DICT["Tkinter"][18][1],nextTitle=TOPIC_DICT["Tkinter"][18][0])
 
 @app.route(TOPIC_DICT["Tkinter"][18][1],methods=['GET','POST'])
-def Adding_exchange_choice_cont'd():
+def Adding_exchange_choice_contd():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Tkinter/adding-exchanges-2.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Tkinter"][18][1],curTitle=TOPIC_DICT["Tkinter"][18][0],nextLink=TOPIC_DICT["Tkinter"][19][1],nextTitle=TOPIC_DICT["Tkinter"][19][0])
@@ -629,7 +811,7 @@ def Acquiring_MACD_data_from_Sea_of_BTC_API():
     return render_template("tutorials/Tkinter/getting-macd-data-for-tkinter-gui.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Tkinter"][25][1],curTitle=TOPIC_DICT["Tkinter"][25][0],nextLink=TOPIC_DICT["Tkinter"][26][1],nextTitle=TOPIC_DICT["Tkinter"][26][0])
 
 @app.route(TOPIC_DICT["Tkinter"][26][1],methods=['GET','POST'])
-def Converting_Tkinter_application_to_.exe_and_installer_with_cx_Freeze():
+def Converting_Tkinter_application_to_exe_and_installer_with_cx_Freeze():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Tkinter/converting-tkinter-to-exe-with-cx-freeze.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Tkinter"][26][1],curTitle=TOPIC_DICT["Tkinter"][26][0],nextLink=TOPIC_DICT["Tkinter"][27][1],nextTitle=TOPIC_DICT["Tkinter"][27][0])
@@ -731,13 +913,13 @@ def Matplotlib_Crash_Course():
     return render_template("tutorials/Data Visualization/matplotlib-python-3-basics-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][0][1],curTitle=TOPIC_DICT["Data Visualization"][0][0],nextLink=TOPIC_DICT["Data Visualization"][1][1],nextTitle=TOPIC_DICT["Data Visualization"][1][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][1][1],methods=['GET','POST'])
-def 3D_graphs_in_Matplotlib():
+def p3D_graphs_in_Matplotlib():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/3d-graphing-python-matplotlib.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][1][1],curTitle=TOPIC_DICT["Data Visualization"][1][0],nextLink=TOPIC_DICT["Data Visualization"][2][1],nextTitle=TOPIC_DICT["Data Visualization"][2][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][2][1],methods=['GET','POST'])
-def 3D_Scatter_Plot_with_Python_and_Matplotlib():
+def p3D_Scatter_Plot_with_Python_and_Matplotlib():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/matplotlib-3d-scatterplot-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][2][1],curTitle=TOPIC_DICT["Data Visualization"][2][0],nextLink=TOPIC_DICT["Data Visualization"][3][1],nextTitle=TOPIC_DICT["Data Visualization"][3][0])
@@ -749,13 +931,13 @@ def More_3D_scatter_plotting_with_custom_colors():
     return render_template("tutorials/Data Visualization/3d-scatter-plot-customizing.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][3][1],curTitle=TOPIC_DICT["Data Visualization"][3][0],nextLink=TOPIC_DICT["Data Visualization"][4][1],nextTitle=TOPIC_DICT["Data Visualization"][4][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][4][1],methods=['GET','POST'])
-def 3D_Barcharts():
+def p3D_Barcharts():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/3d-bar-charts-python-matplotlib.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][4][1],curTitle=TOPIC_DICT["Data Visualization"][4][0],nextLink=TOPIC_DICT["Data Visualization"][5][1],nextTitle=TOPIC_DICT["Data Visualization"][5][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][5][1],methods=['GET','POST'])
-def 3D_Plane_wireframe_Graph():
+def p3D_Plane_wireframe_Graph():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/wireframe-graph-python.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][5][1],curTitle=TOPIC_DICT["Data Visualization"][5][0],nextLink=TOPIC_DICT["Data Visualization"][6][1],nextTitle=TOPIC_DICT["Data Visualization"][6][0])
@@ -773,37 +955,37 @@ def Modify_Data_Granularity_for_Graphing_Data():
     return render_template("tutorials/Data Visualization/modifying-data-granularity-matplotlib.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][7][1],curTitle=TOPIC_DICT["Data Visualization"][7][0],nextLink=TOPIC_DICT["Data Visualization"][8][1],nextTitle=TOPIC_DICT["Data Visualization"][8][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][8][1],methods=['GET','POST'])
-def Geographical_Plotting_with_Basemap_and_Python_p._1():
+def Geographical_Plotting_with_Basemap_and_Python_p_1():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/geographical-plotting-basemap-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][8][1],curTitle=TOPIC_DICT["Data Visualization"][8][0],nextLink=TOPIC_DICT["Data Visualization"][9][1],nextTitle=TOPIC_DICT["Data Visualization"][9][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][9][1],methods=['GET','POST'])
-def Geographical_Plotting_with_Basemap_and_Python_p._2():
+def Geographical_Plotting_with_Basemap_and_Python_p_2():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/map-plotting-basemap-matplotlib-part-2.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][9][1],curTitle=TOPIC_DICT["Data Visualization"][9][0],nextLink=TOPIC_DICT["Data Visualization"][10][1],nextTitle=TOPIC_DICT["Data Visualization"][10][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][10][1],methods=['GET','POST'])
-def Geographical_Plotting_with_Basemap_and_Python_p._3():
+def Geographical_Plotting_with_Basemap_and_Python_p_3():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/basemap-possibilities.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][10][1],curTitle=TOPIC_DICT["Data Visualization"][10][0],nextLink=TOPIC_DICT["Data Visualization"][11][1],nextTitle=TOPIC_DICT["Data Visualization"][11][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][11][1],methods=['GET','POST'])
-def Geographical_Plotting_with_Basemap_and_Python_p._4():
+def Geographical_Plotting_with_Basemap_and_Python_p_4():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/plotting-maps-python-basemap.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][11][1],curTitle=TOPIC_DICT["Data Visualization"][11][0],nextLink=TOPIC_DICT["Data Visualization"][12][1],nextTitle=TOPIC_DICT["Data Visualization"][12][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][12][1],methods=['GET','POST'])
-def Geographical_Plotting_with_Basemap_and_Python_p._5():
+def Geographical_Plotting_with_Basemap_and_Python_p_5():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/basemap-python-plotting-tutorial-part-5.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][12][1],curTitle=TOPIC_DICT["Data Visualization"][12][0],nextLink=TOPIC_DICT["Data Visualization"][13][1],nextTitle=TOPIC_DICT["Data Visualization"][13][0])
 
 @app.route(TOPIC_DICT["Data Visualization"][13][1],methods=['GET','POST'])
-def Advanced_Matplotlib_Series_(videos_and_ending_source_only)():
+def Advanced_Matplotlib_Series_videos_and_ending_source_only():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Visualization/advanced-matplotlib-graphing-charting-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Visualization"][13][1],curTitle=TOPIC_DICT["Data Visualization"][13][0],nextLink=TOPIC_DICT["Data Visualization"][14][1],nextTitle=TOPIC_DICT["Data Visualization"][14][0])
@@ -881,19 +1063,19 @@ def Checking_betting_results():
     return render_template("tutorials/Creating a Monte Carlo simulator/checking-bettor-results.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Creating a Monte Carlo simulator"][11][1],curTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][11][0],nextLink=TOPIC_DICT["Creating a Monte Carlo simulator"][12][1],nextTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][12][0])
 
 @app.route(TOPIC_DICT["Creating a Monte Carlo simulator"][12][1],methods=['GET','POST'])
-def D'Alembert_Strategy():
+def DAlembert_Strategy():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Creating a Monte Carlo simulator/dalembert-strategy.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Creating a Monte Carlo simulator"][12][1],curTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][12][0],nextLink=TOPIC_DICT["Creating a Monte Carlo simulator"][13][1],nextTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][13][0])
 
 @app.route(TOPIC_DICT["Creating a Monte Carlo simulator"][13][1],methods=['GET','POST'])
-def 5050_Odds():
+def d5050_Odds():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Creating a Monte Carlo simulator/50-50-odds.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Creating a Monte Carlo simulator"][13][1],curTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][13][0],nextLink=TOPIC_DICT["Creating a Monte Carlo simulator"][14][1],nextTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][14][0])
 
 @app.route(TOPIC_DICT["Creating a Monte Carlo simulator"][14][1],methods=['GET','POST'])
-def Analysis_of_D'Alembert():
+def Analysis_of_DAlembert():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Creating a Monte Carlo simulator/dalembert-analysis.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Creating a Monte Carlo simulator"][14][1],curTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][14][0],nextLink=TOPIC_DICT["Creating a Monte Carlo simulator"][15][1],nextTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][15][0])
@@ -905,7 +1087,7 @@ def Comparing_Profitability():
     return render_template("tutorials/Creating a Monte Carlo simulator/comparing-profitability.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Creating a Monte Carlo simulator"][15][1],curTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][15][0],nextLink=TOPIC_DICT["Creating a Monte Carlo simulator"][16][1],nextTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][16][0])
 
 @app.route(TOPIC_DICT["Creating a Monte Carlo simulator"][16][1],methods=['GET','POST'])
-def Finding_best_D'Alembert_Multiple():
+def Finding_best_DAlembert_Multiple():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Creating a Monte Carlo simulator/snooping-best-dalembert-multiple.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Creating a Monte Carlo simulator"][16][1],curTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][16][0],nextLink=TOPIC_DICT["Creating a Monte Carlo simulator"][17][1],nextTitle=TOPIC_DICT["Creating a Monte Carlo simulator"][17][0])
@@ -1043,7 +1225,7 @@ def More_ParsingScraping():
     return render_template("tutorials/Natural Language Processing with NLTK/website-scraping-basics.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Natural Language Processing with NLTK"][2][1],curTitle=TOPIC_DICT["Natural Language Processing with NLTK"][2][0],nextLink=TOPIC_DICT["Natural Language Processing with NLTK"][3][1],nextTitle=TOPIC_DICT["Natural Language Processing with NLTK"][3][0])
 
 @app.route(TOPIC_DICT["Natural Language Processing with NLTK"][3][1],methods=['GET','POST'])
-def Installing_the_Natural_Language_Toolkit_(NLTK)():
+def Installing_the_Natural_Language_Toolkit_NLTK():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Natural Language Processing with NLTK/installing-nltk-nlp-python.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Natural Language Processing with NLTK"][3][1],curTitle=TOPIC_DICT["Natural Language Processing with NLTK"][3][0],nextLink=TOPIC_DICT["Natural Language Processing with NLTK"][4][1],nextTitle=TOPIC_DICT["Natural Language Processing with NLTK"][4][0])
@@ -1085,7 +1267,7 @@ def Populating_a_knowledge_base():
     return render_template("tutorials/Natural Language Processing with NLTK/populating-nlp-database.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Natural Language Processing with NLTK"][9][1],curTitle=TOPIC_DICT["Natural Language Processing with NLTK"][9][0],nextLink=TOPIC_DICT["Natural Language Processing with NLTK"][10][1],nextTitle=TOPIC_DICT["Natural Language Processing with NLTK"][10][0])
 
 @app.route(TOPIC_DICT["Natural Language Processing with NLTK"][10][1],methods=['GET','POST'])
-def What_next?():
+def What_next():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Natural Language Processing with NLTK/what-next-nlp-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Natural Language Processing with NLTK"][10][1],curTitle=TOPIC_DICT["Natural Language Processing with NLTK"][10][0],nextLink=TOPIC_DICT["Natural Language Processing with NLTK"][11][1],nextTitle=TOPIC_DICT["Natural Language Processing with NLTK"][11][0])
@@ -1121,7 +1303,7 @@ def Pandas_Column_manipulation():
     return render_template("tutorials/Data Manipulation/pandas-column-manipulation-spreadsheet-data.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Manipulation"][1][1],curTitle=TOPIC_DICT["Data Manipulation"][1][0],nextLink=TOPIC_DICT["Data Manipulation"][2][1],nextTitle=TOPIC_DICT["Data Manipulation"][2][0])
 
 @app.route(TOPIC_DICT["Data Manipulation"][2][1],methods=['GET','POST'])
-def Pandas_Column_Operations_(basic_math_operations_and_moving_averages)():
+def Pandas_Column_Operations_basic_math_operations_and_moving_averages():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Data Manipulation/pandas-column-operations-calculations.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Manipulation"][2][1],curTitle=TOPIC_DICT["Data Manipulation"][2][0],nextLink=TOPIC_DICT["Data Manipulation"][3][1],nextTitle=TOPIC_DICT["Data Manipulation"][3][0])
@@ -1157,9 +1339,11 @@ def Pandas_Function_mapping_for_advanced_Pandas_users():
     return render_template("tutorials/Data Manipulation/python-function-mapping-pandas.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Data Manipulation"][7][1],curTitle=TOPIC_DICT["Data Manipulation"][7][0],nextLink=TOPIC_DICT["Data Manipulation"][8][1],nextTitle=TOPIC_DICT["Data Manipulation"][8][0])
 
 @app.route(TOPIC_DICT["Basics"][0][1],methods=['GET','POST'])
+#@app.route("/introduction-to-python-programming/",methods=['GET','POST'])
 def Python_Introduction():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
+    
     return render_template("tutorials/Basics/introduction-to-python-programming.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Basics"][0][1],curTitle=TOPIC_DICT["Basics"][0][0],nextLink=TOPIC_DICT["Basics"][1][1],nextTitle=TOPIC_DICT["Basics"][1][0])
 
 @app.route(TOPIC_DICT["Basics"][1][1],methods=['GET','POST'])
@@ -1433,7 +1617,7 @@ def The_Subprocess_Module():
     return render_template("tutorials/Basics/python-3-subprocess-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Basics"][45][1],curTitle=TOPIC_DICT["Basics"][45][0],nextLink=TOPIC_DICT["Basics"][46][1],nextTitle=TOPIC_DICT["Basics"][46][0])
 
 @app.route(TOPIC_DICT["Basics"][46][1],methods=['GET','POST'])
-def Matplotlib_Crash_Course():
+def Matplotlib_Crash_Course_basic():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Basics/matplotlib-python-3-basics-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Basics"][46][1],curTitle=TOPIC_DICT["Basics"][46][0],nextLink=TOPIC_DICT["Basics"][47][1],nextTitle=TOPIC_DICT["Basics"][47][0])
@@ -1553,7 +1737,7 @@ def Navigating_the_Terminal():
     return render_template("tutorials/Virtual Private Server Basics/navigating-terminal.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Virtual Private Server Basics"][1][1],curTitle=TOPIC_DICT["Virtual Private Server Basics"][1][0],nextLink=TOPIC_DICT["Virtual Private Server Basics"][2][1],nextTitle=TOPIC_DICT["Virtual Private Server Basics"][2][0])
 
 @app.route(TOPIC_DICT["Virtual Private Server Basics"][2][1],methods=['GET','POST'])
-def Navigating_the_Terminal_p.2():
+def Navigating_the_Terminal_p2():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Virtual Private Server Basics/terminal-navigation.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Virtual Private Server Basics"][2][1],curTitle=TOPIC_DICT["Virtual Private Server Basics"][2][0],nextLink=TOPIC_DICT["Virtual Private Server Basics"][3][1],nextTitle=TOPIC_DICT["Virtual Private Server Basics"][3][0])
@@ -1793,7 +1977,7 @@ def Remotely_controlling_the_car():
     return render_template("tutorials/Robotics with the Raspberry Pi/raspberry-pi-car-remote-control.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Robotics with the Raspberry Pi"][11][1],curTitle=TOPIC_DICT["Robotics with the Raspberry Pi"][11][0],nextLink=TOPIC_DICT["Robotics with the Raspberry Pi"][12][1],nextTitle=TOPIC_DICT["Robotics with the Raspberry Pi"][12][0])
 
 @app.route(TOPIC_DICT["Robotics with the Raspberry Pi"][12][1],methods=['GET','POST'])
-def Adding_a_distance_sensor_(HC_SR04)():
+def Adding_a_distance_sensor_HC_SR04():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Robotics with the Raspberry Pi/raspberry-pi-car-distance-sensor.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Robotics with the Raspberry Pi"][12][1],curTitle=TOPIC_DICT["Robotics with the Raspberry Pi"][12][0],nextLink=TOPIC_DICT["Robotics with the Raspberry Pi"][13][1],nextTitle=TOPIC_DICT["Robotics with the Raspberry Pi"][13][0])
@@ -1835,7 +2019,7 @@ def Less_latency_streaming_option():
     return render_template("tutorials/Robotics with the Raspberry Pi/low-latency-video-streaming-raspberry-pi.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Robotics with the Raspberry Pi"][18][1],curTitle=TOPIC_DICT["Robotics with the Raspberry Pi"][18][0],nextLink=TOPIC_DICT["Robotics with the Raspberry Pi"][19][1],nextTitle=TOPIC_DICT["Robotics with the Raspberry Pi"][19][0])
 
 @app.route(TOPIC_DICT["PyQt"][0][1],methods=['GET','POST'])
-def PyQt_Tutorials_coming_soon!():
+def PyQt_Tutorials_coming_soon():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/PyQt/pyqt-python-programming-tutorials.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["PyQt"][0][1],curTitle=TOPIC_DICT["PyQt"][0][0],nextLink=TOPIC_DICT["PyQt"][1][1],nextTitle=TOPIC_DICT["PyQt"][1][0])
@@ -2069,13 +2253,13 @@ def Kivy_Widgets_and_Labels():
     return render_template("tutorials/Kivy/kivy-widgets-labels.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Kivy"][1][1],curTitle=TOPIC_DICT["Kivy"][1][0],nextLink=TOPIC_DICT["Kivy"][2][1],nextTitle=TOPIC_DICT["Kivy"][2][0])
 
 @app.route(TOPIC_DICT["Kivy"][2][1],methods=['GET','POST'])
-def The_Kivy_.kv_Language():
+def The_Kivy_kv_Language():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Kivy/kivy-language-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Kivy"][2][1],curTitle=TOPIC_DICT["Kivy"][2][0],nextLink=TOPIC_DICT["Kivy"][3][1],nextTitle=TOPIC_DICT["Kivy"][3][0])
 
 @app.route(TOPIC_DICT["Kivy"][3][1],methods=['GET','POST'])
-def Kivy_.kv_Language_cont'd():
+def Kivy_kv_Language_contd():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Kivy/more-kivy-language.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Kivy"][3][1],curTitle=TOPIC_DICT["Kivy"][3][0],nextLink=TOPIC_DICT["Kivy"][4][1],nextTitle=TOPIC_DICT["Kivy"][4][0])
@@ -2105,7 +2289,7 @@ def Simple_Drawing_Application():
     return render_template("tutorials/Kivy/kivy-drawing-application-tutorial.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Kivy"][7][1],curTitle=TOPIC_DICT["Kivy"][7][0],nextLink=TOPIC_DICT["Kivy"][8][1],nextTitle=TOPIC_DICT["Kivy"][8][0])
 
 @app.route(TOPIC_DICT["Kivy"][8][1],methods=['GET','POST'])
-def Builder_for_loading_.kv_Files():
+def Builder_for_loading_kv_Files():
     update_user_tracking()
     completed_percentages = topic_completion_percent()
     return render_template("tutorials/Kivy/kivy-loader-for-style.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Kivy"][8][1],curTitle=TOPIC_DICT["Kivy"][8][0],nextLink=TOPIC_DICT["Kivy"][9][1],nextTitle=TOPIC_DICT["Kivy"][9][0])
@@ -2201,5 +2385,6 @@ def Conclusion():
     return render_template("tutorials/Python and Pandas with Sentiment Analysis Database/sentiment-conclusion.html",completed_percentages=completed_percentages,curLink=TOPIC_DICT["Python and Pandas with Sentiment Analysis Database"][11][1],curTitle=TOPIC_DICT["Python and Pandas with Sentiment Analysis Database"][11][0],nextLink=TOPIC_DICT["Python and Pandas with Sentiment Analysis Database"][12][1],nextTitle=TOPIC_DICT["Python and Pandas with Sentiment Analysis Database"][12][0])
 
     
+        
 if __name__ == "__main__":
     app.run()
