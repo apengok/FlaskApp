@@ -101,8 +101,10 @@ def background_process():
     try:
         
         lang = request.args.get('proglang')
+        flash(lang)
         if str(lang).lower() == 'python':
-            return jsonify(result='You are wise!')
+            d = {'result':'You are wise!'}
+            return jsonify(d)
         else:
             return jsonify(result='Try again!')
     except Exception,e:
@@ -112,7 +114,7 @@ def background_process():
 @app.route('/interactive/')
 def interactive():
     try:
-        
+        flash("interactive")
         return render_template("interactive.html")
     except Exception,e:
         return str(e)
