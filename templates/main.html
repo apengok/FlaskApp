@@ -10,127 +10,145 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/materialize.min.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}"> 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/style.css') }}">
+    <link  type="text/javascript" href="{{ url_for('static',filename='jquery-1.11.3.min.js') }}">
     
+    <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js">
+    </script>
     
-    <style>
-		@media (min-width:992px) {
-		#aside {
-			width:250px;
-		}
-		pre { tab-size: 4;}
-		.btn {background-color:#FFD166;
-			  color:#000;
-		      height:auto;
-			  font-color:#000;
-			  }
-		.btn:hover {background-color:#FFD166;
-					}
-
-
-    </style>
-        
     </head>
 
-<header>
-    <div class="navbar-header">
-    <a class="navbar-brand" rel="home" href="/" title="Python Programming Tutorials ">
-        <img style="max-width:120px; margin-top: -7px;" src="{{ url_for('static', filename='images/mainlogo.png') }}">
-    </a>
-  </div>
 
-  <div class="container-fluid">
-	<ul class="nav nav-pills">
-		<a href="/dashboard/"><button type="button" class="btn btn-primary" style=" margin-top: 5px; margin-bottom: 5px; height:44px; margin-right: 15px">
-			<span class="glyphicon glyphicon-off"></span> Start Learning
-		</button></a>
-      <ul class="nav navbar-nav navbar-right">
-	  {% if session.logged_in %}
-		<div style="margin-right: 10px; margin-left: 15px;  margin-top: 5px; margin-bottom: 5px;" class="container-fluid">
-		<h5><a href="/support-donate/"> <span class="glyphicon glyphicon-heart"></span> Support&nbsp;&nbsp;&nbsp;</a>
-		<a href="/logout/"><span class="glyphicon glyphicon-log-out"></span> Logout</a></h5>
-		</div>
-	  {% else %}
-	  <div style="margin-right: 10px; margin-left: 15px; margin-top: 5px; margin-bottom: 5px;" class="container-fluid">
-		<h5><a href="/support-donate/"> <span class="glyphicon glyphicon-heart"></span> Support&nbsp;&nbsp;&nbsp;</a>
-		<a href="/login/"> <span class="glyphicon glyphicon-log-in"></span> Login</a>&nbsp;&nbsp;&nbsp;
-		<a href="/register/" ><span class="glyphicon glyphicon-pencil"></span> Sign up</a></h5>
-	  </div>
-	  {% endif %}
-      </ul>
-	</ul>
-  </div>
-</header>    
     
-    <body>
-        <ul class="nav nav-tabs">
-          <li role="presentation" class="active"><a href="#basics" aria-controls="basics" role="tab" data-toggle="tab">Basics</a></li>
-          <li role="presentation"><a href="#webdev" aria-controls="webedv" role="tab" data-toggle="tab">Web Dev</a></li>
-          <li role="presentation"><a href="#">Data Analysis</a></li>
-        </ul>
-    <!-- BEGIN BASICS TAB -->    
-        <div role="tabpanel"class="tab-pane fade in active" id="basics">
-            </br>
-            <h4>Basics</h4>
-            <p>Going through all of the basics well best equip you to handle the largest array of problems that you may face, as well as helping you to pick up new topics along the way.</p>
+<body>
+    <header id="masthead" class="site-header" role="banner">
+        <div class="container">
+            <div class="clearfix text-center">
+                <div class="menu-area hidden-xs">
+                        <a class="pull-left logo" href="http://thebootstrapthemes.com">
+                    <svg width="32px" height="39px" viewBox="0 0 32 39" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <!-- Generator: Sketch 43.1 (39012) - http://www.bohemiancoding.com/sketch -->
+                        <desc>Created with Sketch.</desc>
+                        <defs></defs>
+                        <g id="Landing-Page" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="Products" transform="translate(-134.000000, -41.000000)" fill="#FFFFFF">
+                                <path d="M152.24123,80 L134,80 L134,41 L151.447656,41 L155.368424,41 C160.463241,41 164.593407,45.1260012 164.593407,50.2181818 C164.593407,54.2094912 162.055133,57.6083331 158.503328,58.8904967 C162.852793,60.290137 166,64.3698106 166,69.1863636 C166,75.1585701 161.156526,80 155.187869,80 L152.24123,80 Z" id="Combined-Shape"></path>
+                            </g>
+                        </g>
+                    </svg>
+                    </a><!-- .site-branding -->
+
+                                        
+                    <div class="login-drop pull-right">
+                        <a class="dropmenu login"><i class="fa fa-shopping-bag" aria-hidden="true"></i> &#36;0.00</a>
+                        <ul class="drop-list collapse">
+                            <li>
+                            <img alt='' src='http://0.gravatar.com/avatar/3b2b619ec6262955cb95161e729e20db?s=30&#038;d=mm&#038;r=g' srcset='http://0.gravatar.com/avatar/3b2b619ec6262955cb95161e729e20db?s=60&amp;d=mm&amp;r=g 2x' class='avatar avatar-30 photo' height='30' width='30' /> Welcome 
+                                Peng Weilin
+                            </li>
+                            <li><a href="#" class="dropmenu">My Account</a></li>
+                            <li><a href="#" >Purchase History</a></li>
+                            <li><a href="#">Logout</a></li>
+                        </ul>
+
+                    </div>			
+                    <div class="menu-topmenu-container">
+                        <ul id="menu-topmenu" class="menu"><li id="menu-item-35228" class="menu-item menu-item-type-taxonomy menu-item-object-download_category menu-item-35228"><a href="#">Free</a></li>
+                        <li id="menu-item-35227" class="menu-item menu-item-type-taxonomy menu-item-object-download_category menu-item-35227"><a href="#">Premium</a></li>
+                        <li id="menu-item-35230" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-35230"><a href="#">blog</a></li>
+                        </ul>
+                    </div>			
+                </div>
+            </div>
+            
         </div>
-    <!-- END BASICS TAB -->
-    
-    <!-- BEGIN WEB TAB -->    
-        <div role="tabpanel"class="tab-pane fade in active" id="webdev">
-            </br>
-            <h4>Web Dev</h4>
-            <p>Flask and Django solve the same problems. Flask is a bit looser and more open-ended. It allows for you to both do things simply, and also do things incorrectly.</p>
-			<p>Django is more "higher level" than Flask, meaning some things are simply not as easily customized. Django can be slightly more complex, as you're forced to understand Django in basically one way, yet you're more likely to do things the right way.</p>
-			<p>The best choice is to make an attempt at both, and see which suits you best.</p>
-        </div>
-    <!-- END WEB TAB -->
+	</header>
     
     
-    </body>
-    
-    <div class="footer-container" style="background-color: #ececec">
-	<footer id="footer">
-		<div class="border-row" style="width:100%; margin-bottom: 15px;"> </div>
-		<div class="row">
-		  <div class="col-md-2">
-				<ul style="list-style-type: none;">
-						<li><strong>About</strong></li>
-						<li><a href="/about">Mission</a></li>
-						<li><a href="/about/super-powers">What Python means to me</a></li>
-						<li><a href="/about/technology">Technology</a></li>
-						<li><a href="/contact">Contact</a></li>
-						<li><a href="/support-donate">Support / Donate</a></li>
-						<li>&copy; 2015 Python Programming.</li>
-						
-				</ul>
-				
-		  </div>
-
-		  <div class="col-md-1"> </div>
-		  <div class="col-md-2">
-			<ul style="list-style-type: none;">
-		  
-						<li><strong>Social</strong></li>
-						<!--<li><a href="/blog">Blog</a></li>-->
-						<li><a href="https://twitter.com/sentdex" target="_blank">Twitter</a></li>
-						<li><a href="http://www.youtube.com/user/sentdex?sub_confirmation=1" target="_blank">YouTube</a></li>
-						<li><a href="https://plus.google.com/+sentdex" target="_blank">Google+</a></li>
-
-			</ul>
-		  </div>
-		  
-		  <div class="col-md-1"> </div>
-		  <div class="col-md-2"><ul style="list-style-type: none;">
-					<li><strong>Legal</strong></li>
-					<li><span><a href="/about/tos">Terms of Use</a></span></li>
-					<li><span><a href="/about/privacy-policy">Privacy Notice (updated Jan 22, 2015)</a></span></li>
-					
-					
-				</ul>
-				</div>
-		</div>
-
-		</div>
+    <!-- #masthead -->
+    <div class="welcome inside-page text-center">
+        <h1 class="entry-title">Best Bootstrap E-commerce Templates</h1>
+    </div>
 	
-	</footer>
+    <div class="container">
+        <div id="content" class="content-lift site-content">
+			<div class="row">
+
+
+                <div id="primary" class="col-sm-7 col-md-9">
+                        
+                    <p>Code Here</p>
+
+
+                    <div id="disqus_thread">
+                    </div>
+
+
+                </div><!-- #primary -->
+
+
+                <div id="secondary" class="widget-area  col-sm-5 col-md-3" role="complementary">
+                    <aside id="wp-user-control-widget-2" class="widget WP User Control Widget">
+                        <h1 class="widget-title">Login/Register</h1>    					<div id="wp-user-control-login-register-password">
+                                        
+                                            <div id="wp-user-control-sidebox">
+                        <h3>Welcome, Peng Weilin</h3>
+                            <div id="wp-user-control-usericon">
+                        <img alt='' src='http://0.gravatar.com/avatar/3b2b619ec6262955cb95161e729e20db?s=60&#038;d=mm&#038;r=g' srcset='http://0.gravatar.com/avatar/3b2b619ec6262955cb95161e729e20db?s=120&amp;d=mm&amp;r=g 2x' class='avatar avatar-60 photo' height='60' width='60' />    	</div>
+                            <div id="wp-user-control-userinfo">
+                            <p>You're logged in as 
+                                <strong>Peng Weilin</strong>
+                            </p>
+                            <p>
+                                <a href="#">Log out</a> &nbsp;|&nbsp; 
+                                <a href="#">Profile</a>    		</p>
+                        </div>
+                    </div>     					<!-- WP User Control Widget JS -->
+                                        <script type="text/javascript">
+                                        wp_user_control_widget_js( 'login' );
+                                        </script>
+                                        <!-- WP User Control Widget JS -->
+                                    </div>
+                    </aside>
+                                    
+                    <aside id="categories-2" class="widget widget_categories">
+                        <h1 class="widget-title">Categories</h1>		<ul>
+                        <li class="cat-item cat-item-25"><a href="http://thebootstrapthemes.com/free-templates/" title="Collection of best free bootstrap themes for the Personal and Corporate Portfolio.">Free Templates</a> (6)
+                        </li>
+                        <li class="cat-item cat-item-26"><a href="http://thebootstrapthemes.com/premium-templates/" >Premium Templates</a> (16)
+                    </li>
+                            </ul>
+                    </aside>
+                </div><!-- #secondary -->
+
+            </div>
+        </div>
+	</div><!-- #content -->
+    
+    
+    <footer id="colophon" class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="site-info clearfix">
+                <span class="pull-left links"><a href="http://thebootstrapthemes.com/">Home</a> | <a href="http://thebootstrapthemes.com/about/">About</a> | 
+                <a href="http://thebootstrapthemes.com/affiliate-home/">Affiliate</a> | 
+                <a href="http://thebootstrapthemes.com/thank/">Thank you</a> | <a href="http://thebootstrapthemes.com/contact/">Contact us</a><br>Copyright 2015. All Rights Reserved - TheBootstrapThemes.com</span>
+                <div class="pull-right social">
+                    <a href="https://www.facebook.com/thebootstrapthemes" target="_blank"><i class="fa fa-facebook-square"></i>F
+                    </a> 
+                    <a href="https://twitter.com/themesbootstrap" target="_blank"><i class="fa fa-twitter-square"></i>T</a> 
+                    <a href="//plus.google.com/u/0/106312370634368598354?prsrc=3" rel="publisher" target="_blank">
+                        <i class="fa fa-google-plus"></i>G</a> 
+                    <a href="http://dribbble.com/amitbajracharya"  target="_blank"><i class="fa fa-dribbble"></i>D</a>
+			</div>
+		</div><!-- .site-info -->
+	</footer><!-- #colophon -->
+    </div>
+<script>
+ $(".dropmenu").click(function(){
+        $(".drop-list").collapse('toggle');
+    });
+</script>
+</body>
+    
+    
 </html>

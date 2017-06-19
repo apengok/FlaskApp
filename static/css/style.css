@@ -1,0 +1,348 @@
+/*
+Theme Name: thebootstrapthemes
+Theme URI: http://underscores.me/
+Author: Underscores.me
+Author URI: http://underscores.me/
+Description: Description
+Version: 1.0-wpcom
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: thebootstrapthemes
+Tags:
+
+This theme, like WordPress, is licensed under the GPL.
+Use it to make something cool, have fun, and share what you've learned with others.
+
+ thebootstrapthemes is based on Underscores http://underscores.me/, (C) 2012-2014 Automattic, Inc.
+
+Resetting and rebuilding styles have been helped along thanks to the fine work of
+Eric Meyer http://meyerweb.com/eric/tools/css/reset/index.html
+along with Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
+and Blueprint http://www.blueprintcss.org/
+*/
+
+/*--------------------------------------------------------------
+>>> TABLE OF CONTENTS:
+----------------------------------------------------------------
+1.0 Reset
+2.0 Typography
+3.0 Elements
+4.0 Forms
+5.0 Navigation
+	5.1 Links
+	5.2 Menus
+6.0 Accessibility
+7.0 Alignments
+8.0 Clearings
+9.0 Widgets
+10.0 Content
+	10.1 Posts and pages
+	10.2 Asides
+	10.3 Comments
+11.0 Infinite scroll
+12.0 Media
+	12.1 Captions
+	12.2 Galleries
+--------------------------------------------------------------*/
+@import url(http://fonts.googleapis.com/css?family=Roboto:300,400,500,700);
+body{font:300 14px/14px Roboto; color: #666;background-color:#efefef; }
+
+a{color:#10abc7;}
+input,.btn,a,a:hover,a:active,a:focus,header,div,ul.drop-list{text-decoration: none;-webkit-transition: all 0.3s ease-in-out;-moz-transition: all 0.3s ease-in-out;-ms-transition: all 0.3s ease-in-out;-o-transition: all 0.3s ease-in-out;transition: all 0.3s ease-in-out;outline:0 ;}
+.btn{border:none;padding: 10px 50px;border-radius: 5px;color:#fff;border-radius:40px;}
+.btn-primary{background: #25D4E5;}
+.btn-danger{background: #F9387C;}
+.btn-success{}
+
+h1,h2,h3,h4,h5,h6{margin: 0;line-height: 1em;font-weight:700;color:#333;}
+h1{font-size: 3em;}
+h2{font-size: 1.75em;margin-bottom:15px;font-weight:300;}
+h2 a{color: #6E6E6E;}
+h2 a:hover{color: #10abc7;}
+
+h3{font-size: 23px;margin: 30px 0;font-weight: 300;}
+h3 a{color: #6E6E6E;}
+h3 a:hover{color: #7c4ce0;}
+h4{margin-bottom:1em;font-size:1em;font-weight:400;}
+
+h1.entry-title{font:400 3em Raleway;margin-bottom: 1em;}
+h1.page-title{font-size:2em;margin-bottom: 0.5em;}
+h1.widget-title{font-size: 1.25em;line-height: 1.25em !important;margin-bottom: 1em !important;}
+h1.screen-reader-text{display:none;}
+h3.comment-reply-title{margin: 1em 0 1em 0;float: left;width: 100%;}
+
+blockquote{font-size:1em;}
+blockquote p{margin-bottom:15px;}
+p{line-height: 1.50em;margin-bottom:2em;}
+ul,ol{margin-bottom:2em;line-height:2em;}
+
+header.site-header{position: fixed;top: 0;left: 0;right: 0;z-index: 1000;}
+header.site-header .logo{padding:40px 0 0 0;width:90px;text-align:left;}
+
+
+
+/*.home header.site-header{position: static;background: none;}*/
+
+header ul.menu{margin: 0;padding: 0;list-style: none;}
+header ul.menu li{display: inline-block;margin-left: 1px;}
+header ul.menu li a{display: inline-block;padding:0 2em;font:400 1em/127px Roboto;color:rgba(255, 255, 255, 0.60);text-transform: uppercase;letter-spacing: 2px;}
+header ul.menu li a:hover{color: #fff;}
+.page-header{margin-top:0;}
+.page-header p{margin:0;}
+header.entry-header p:last-child{margin:0;}
+
+
+
+.login-drop{float:right;text-align:right;width:90px;}
+.login-drop{line-height:127px;position:relative;}
+.login-drop img.avatar{border-radius:50%;}
+.login-drop a.register{  padding: 5px 20px;  background: #10abc7;  color: #fff;  text-transform: uppercase;font-weight:bold;margin-left:10px;}
+.login-drop a.login-reg,.login-drop a.login i{color: #fff;  text-transform: uppercase;font-weight:bold;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    width: 30px;
+    height: 30px;
+    line-height: 25px;
+    display: inline-block;text-align:center;}
+.login-drop a.login{color: #fff; font-weight:300;text-align:center;}
+.login-drop a.login-reg:hover,.login-drop a.login:hover i{border:2px solid rgba(255, 255, 255, 0.5);}
+
+.login-drop ul.drop-list {position:absolute;padding:0;  list-style: none;  background-color:#8561fa;  padding: 0;right:0;  width: 200px;  top: 90px;text-align:center;    color: #fff;padding: 10px;border-radius: 10px;font-weight: 300;}
+.login-drop ul.drop-list li a{padding:0 10px;display:block;  color: #fff;}
+.login-drop ul.drop-list li a:hover{color:#cbb7f3;}
+
+
+
+header.site-header.fix-top{background: #7c4ce0;}
+header.fix-top ul.menu li a {line-height: 70px;}
+header.fix-top .logo {padding: 15px 0 0 0;}
+header.fix-top .login-drop {line-height: 70px;}
+header.fix-top .login-drop ul.drop-list{top:70px;}
+
+.welcome.inside-page {padding: 100px 0 300px 0;}
+
+.welcome{color: #fff;font-weight:400;padding:180px 0 400px 0;
+/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#7279ff+0,af2bf0+100 */
+background: #7279ff; /* Old browsers */
+background: -moz-linear-gradient(-45deg,  #7279ff 0%, #af2bf0 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(-45deg,  #7279ff 0%,#af2bf0 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(135deg,  #7279ff 0%,#af2bf0 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7279ff', endColorstr='#af2bf0',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+
+.spacer{padding:90px 0;}
+
+.welcome .sale{font-size:10px;color:rgba(255, 255, 255, 0.50);text-transform:uppercase;letter-spacing:1.5px;}
+.welcome .sale a{background:#AD87BB;color:#FFC542;font-weight:bold;display: inline-block;padding: 4px 13px;border-radius: 22px;margin-right:10px;}
+
+.welcome h1{font-size:23px;font-weight: 300;margin-top:20px;color:#fff;}
+.welcome h1 b{font-weight:700;}
+
+
+.content-lift{background-color:#fff;padding:45px;box-shadow: 0 0px 20px rgba(0, 0, 0, 0.3);margin-top:-280px !important;}
+.store-template .product {box-shadow: 0 0 15px rgba(0, 0, 0, 0.22);margin-bottom:30px;}
+.store-template .product img{width: 100%;height: auto;}
+.store-template .product .product-image{position:relative;}
+.store-template .product .product-details{position:absolute;top:0;right:0;bottom:0;left:0;text-align: center;overflow:hidden;}
+.store-template .product .product-details:hover{background: rgba(0, 0, 0, 0.30);)}
+.store-template .product .product-details  a.btn{position: absolute;top: -100px; left: 50%;margin-left: -78px;margin-top: -20px;}
+.store-template .product .product-details:hover a.btn{top: 50%;}
+
+.store-template .product .product-description{padding:30px;text-align:left;}
+.store-template .product .product-description h3{margin:0 0 15px 0;}
+.store-template .product .product-category {font-weight: 300;font-size: 10px;text-transform: uppercase;letter-spacing: 1.5px;color: #6e6e6e;}
+
+
+pagination{text-align:center;display:block;}
+
+
+.theme-cta .edd_download_purchase_form,.theme-cta>div{margin:0;display: inline-block;}
+
+.theme-cta .edd-submit.button.blue{border: none;line-height: 28px;background:#ff24a3;border-radius:40px;padding:6px 40px;}
+.theme-cta .sharedaddy{margin-top:15px;}
+.theme-thumbnails{padding:0;width: 80%;margin: 0 auto;}
+.theme-thumbnails img{width:100%;height:auto;}
+.theme-details .theme-desc{font-weight:300;position:relative;font-size:18px;line-height:30px;}
+.theme-details .theme-desc .container{padding:0 15%;}
+.theme-details .theme-desc:after {
+    border-style: solid;
+    border-width: 25px 25px 0 25px;
+    border-color: #efefef transparent transparent transparent;
+    content: '';
+    position: absolute;
+    bottom: -25px;
+}
+
+.theme-details .theme-features{background:#fff;}
+.theme-details .theme-features h2{margin-bottom:60px;}
+
+
+.site-content{margin-top: 95px;}
+.home .site-content{margin:0;}
+.site-main .content-area{padding:2em;position: relative;background-color:#fff;}
+.site-main article{margin-bottom: 2em;}
+.site-main article h1 a{color: #333;}
+.site-main article h1 a:hover{color: #819C26;text-decoration: none;}
+
+.site-main article .entry-meta{font-size: 0.85em; color: #999; }
+
+.site-main  .click-through{padding-top:0;}
+
+.site-main .featured-image{background-color: #000;display: block;position:relative;}
+.site-main .featured-image:hover img.wp-post-image{opacity: 0.8;}
+
+/*
+.site-main .featured-image .downloads{position: absolute;top:-50%;right: 38%;background-color: #709D08;height: 7em;width: 7em;text-align: center;color: #fff;border-radius: 50%;padding-top: 2em;}
+.site-main .featured-image:hover .downloads{top:30%;}
+.site-main .featured-image .downloads:hover{background-color: #666;}
+*/
+
+.site-main .downloads{background-color: #709D08;color:#fff;font-size:12px;width:100%;}
+.blog-main img.alignnone{margin-bottom:0.5em;}
+
+.entry-content{margin-top:1em;}
+.entry-content img{max-width: 100%;height: auto;}
+.entry-meta span{margin-right:1em;}
+
+
+
+/*widget*/
+.widget-area aside {background-color: #fff;padding: 1.5em;margin-bottom: 2em;font-size: 0.85em;clear: both;}
+.widget-area aside ul{margin-bottom: 0;padding-left: 1.5em;}
+.widget-area aside ul li{line-height: 1.5em;margin-bottom: 1em;}
+.widget-area aside.widget_bsa{padding:0;}
+.widget-area aside#text-2 {padding: 0;}
+/*widget*/
+
+/*footer*/
+footer.site-footer{padding: 2em 0;background-color: #333;color: #ccc;font-size:0.85em;margin-top: 5em;line-height:20px;}
+footer.site-footer .links a{font-size:13px;margin:0;color:#fff;}
+footer.site-footer a{font-size:1.75em;margin-left:0.25em;}
+footer.site-footer a:hover{color:#ccc;text-decoration:underline;}
+
+/*pagination*/
+.nav-links{clear: both;float: left;width: 100%;margin-bottom: 2em;}
+.nav-previous{float:left;}
+.nav-next{float:right;}
+.nav-links a{background:#75B623;color: #fff;padding:0.75em 1.5em;}
+.nav-links a:hover{background:#333;}
+.pagination{display:block;text-align:center;}
+.pagination a {border: 1px solid #10abc7;padding: 5px 10px;font-weight: normal;margin: 0 5px;}
+
+/*mailchip*/
+#mc_signup_form .mc_input {padding: 0.5em;}
+#mc_signup_submit {margin-top: 0 !important;width: 100% !important;padding: 0.5em 0;background: #10abc7;border: none;color: #fff;}
+#mc_signup_submit:hover{background:#333;}
+.mc_success_msg,.mc_error_msg{margin-bottom: 1em;display: block;font-weight: 400;font-family: Roboto;line-height: 1.25em;}
+#mc_display_rewards {font-size: 0.75em;}
+
+/*--------------------------------------------------------------
+7.0 Alignments
+--------------------------------------------------------------*/
+.alignleft {
+	display: inline;
+	float: left;
+	margin-right: 1.5em;
+}
+
+.alignright {
+	display: inline;
+	float: right;
+	margin-left: 1.5em;
+} 
+
+.aligncenter {
+	clear: both;
+	display: block;
+	margin: 0 auto;
+}
+
+/*listing only*/
+.listing .content-area{padding:1em;box-shadow: 0 3px 4px #ddd;min-height: 90px;}
+.listing .content-area h1.entry-title{font: 500 1em Raleway;margin:0;}
+.listing .featured-image{padding:0.5em;background-color: #fff;}
+.listing .entry-meta{margin-top: 0.5em;}
+
+/*showcase*/
+.showcase-links a.btn-default{margin-bottom:10px;width:100%;background:#eee;font-size:13px;}
+.showcase-links a.btn-default:hover{background:#ddd;}
+.showcase.listing .content-area{padding: 5px 10px 0 10px;min-height: 85px;}
+
+
+.modal-open .modal{background: rgba(0,0,0,0.8);}
+div.modal-body.login label{font-weight:normal;font-size:0.85em;margin:0;}
+div.modal-body.login .input{width:100%;}
+div.modal-body.login p{margin-bottom:1em;}
+div.modal-body.login p:last-child{margin:0;}
+div.modal-body.login .button-primary{background-color: #7CAD13;border: none;padding: 7px 0;width: 100%;color: #fff;}
+
+div.modal-body.login a {background: #229BD5;display: block;text-align: center;color: #fff;padding: 10px 0;}
+div.modal-body.login a:hover{background: #247EA8;}
+div.modal-body.login a.lost{background: none; color: #1A8CD8;text-align: left;font-size: 0.85em;padding-bottom: 0;}
+
+
+.widget-area aside#text-4{padding:0;background:none;}
+.payment i{color: #179BD7;font-size:35px;}
+
+
+.modal-label{color:#fff;background:#333;width:100%;line-height:30px;text-decoration:none;}
+
+.widget-area aside  ul.tabs_login{padding: 0;}
+html ul.tabs_login li{margin:0;  border-radius: 0 !important;height:auto;  line-height: 35px;}
+html body ul.tabs_login li.active_login a{font-weight:normal; color:#333;}
+
+.price-chart p{margin:0;}
+.price-chart h2{margin:0;}
+.price-chart .fa-check{color: #56C30B;}
+.price-chart .fa-close{color: #F0063C;}
+.price-chart hr{border-bottom: 1px solid #fff; border-top: 1px solid #ddd;}
+
+
+span.theme-type{position: absolute;  top:-20px;  right: -20px;  width: 80px;  height: 80px;  margin: 0;  border-radius: 50%;  background-color:#1C96E0;  color: #fff;  text-align: center;  padding: 2px 5px;  line-height: 25px;margin:0;font-size:0;}
+span.theme-type a{display:block;color: #fff;  font-size: 14px;  line-height: 15px;}
+
+#wp-user-control-userinfo{clear:none !important;overflow:hidden;}
+#wp-user-control-usericon{margin: 3px 5px 5px 0px !important;}
+#wp-user-control-userinfo p{margin-bottom:5px !important;}
+#wp-user-control-usericon img{border:none !important;}
+#wp-user-control-login-register-password h3{color: #0FA5C8;font-weight: normal;}
+
+.affiliates-program i{font-size:4em;  color: #10abc7;}
+.affiliates-program h4{font-size:1.05em;}
+
+/*--------------------------------------------------------------
+8.0 Clearings
+--------------------------------------------------------------*/
+
+@media (max-width: 991px){
+	.site-main .content-area{padding: 3em;background-color: #fff;}
+	.lrshare_interfacehorizontal {padding: 3em !important;}	
+	.btn-danger,.btn-success{font-size: 1em;padding: 0.50em 0;margin-bottom: 1em;width: 100%;}
+	.nav-previous,.nav-next{width:100%;margin-bottom: 1em;}
+	.nav-links a{float:left;width:100%;}
+header ul.menu li a{  padding-left: 2em;}
+}
+@media (max-width: 767px){
+	.site-main .content-area{padding: 1em;}	
+	.welcome p{font-size: 1em;}
+	.welcome span{font-size: 0.75em;display: inline-block;margin-bottom: 15px;}
+	.welcome .overlay{padding:10em 0 2em 0;}
+	h1.entry-title {font: 800 1.5em Raleway;margin-bottom: 0.25em;}
+	.listing .content-area h1.entry-title{font: 500 1em Raleway;margin:0;}
+	.lrshare_interfacehorizontal {padding:1em !important;}	
+	header.site-header .logo{padding: 0.75em 0;padding-left: 50px;}
+	header.site-header .logo a.tbt-logo{background-size: 40px;width: 40px;height: 40px;margin-left: -50px;}	
+	header.site-header h1{font-size:1em;}
+	header.site-header h2{font-size:0.8em;}
+	header.site-header .pull-right{float: none !important;clear: both;margin: 0 -15px;background-color: #111;}
+	header ul.menu{text-align:center;}
+	header ul.menu li a{padding:1em 5px;line-height:1em;font-size: 0.75em;}
+	header.site-header .logo a.tbt-logo{top: 7.5px;}
+	.site-main .downloads{display:none;}
+	.widget-area{margin-top: 5em;} 
+	footer.site-footer{margin-top:2em;}
+
+	.ads2{margin-top:10px;}
+	.ads2 a.carbon-text{width: 133px;}
+}
